@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - Yoyaku</title>
+    <link rel="stylesheet" href="/static/admin.css?v=1.0">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 Yoyaku</h2>
+                <p class="admin-title">管理画面</p>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item" data-page="invitations">
+                    <span class="icon">✉️</span>
+                    <span>招待管理</span>
+                </button>
+                <button class="nav-item active" data-page="dashboard">
+                    <span class="icon">📊</span>
+                    <span>ダッシュボード</span>
+                </button>
+                <button class="nav-item" data-page="reservations">
+                    <span class="icon">📅</span>
+                    <span>予約管理</span>
+                </button>
+                <button class="nav-item" data-page="customers">
+                    <span class="icon">👥</span>
+                    <span>顧客管理</span>
+                </button>
+                <button class="nav-item" data-page="stylists">
+                    <span class="icon">✂️</span>
+                    <span>スタイリスト管理</span>
+                </button>
+                <button class="nav-item" data-page="services">
+                    <span class="icon">💇</span>
+                    <span>サービス管理</span>
+                </button>
+                <button class="nav-item" data-page="products">
+                    <span class="icon">🛍️</span>
+                    <span>商品管理</span>
+                </button>
+                <button class="nav-item" data-page="orders">
+                    <span class="icon">🛒</span>
+                    <span>注文管理</span>
+                </button>
+                <button class="nav-item" data-page="campaigns">
+                    <span class="icon">🎯</span>
+                    <span>キャンペーン</span>
+                </button>
+                <button class="nav-item" data-page="coupons">
+                    <span class="icon">🎫</span>
+                    <span>クーポン</span>
+                </button>
+                <button class="nav-item" data-page="analytics">
+                    <span class="icon">📈</span>
+                    <span>売上分析</span>
+                </button>
+                <button class="nav-item" data-page="shop-settings">
+                    <span class="icon">⚙️</span>
+                    <span>店舗設定</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/" class="back-to-site">← お客様サイトへ</a>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ダッシュボード -->
+            <div id="dashboard-page" class="page active">
+                <div class="page-header">
+                    <h1>ダッシュボード</h1>
+                    <div class="header-actions">
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+
+                <!-- 統計カード -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">📅</div>
+                        <div class="stat-content">
+                            <div class="stat-label">今日の予約</div>
+                            <div class="stat-value" id="today-reservations">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-label">総顧客数</div>
+                            <div class="stat-value" id="total-customers">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-label">今月の売上</div>
+                            <div class="stat-value" id="monthly-revenue">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">✅</div>
+                        <div class="stat-content">
+                            <div class="stat-label">完了予約</div>
+                            <div class="stat-value" id="completed-reservations">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日の予約一覧 -->
+                <div class="section">
+                    <h2>今日の予約</h2>
+                    <div id="today-reservations-list" class="reservations-table-container">
+                        <div class="loading">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 予約管理 -->
+            <div id="reservations-page" class="page">
+                <div class="page-header">
+                    <h1>予約管理</h1>
+                    <div class="header-actions">
+                        <select id="reservation-status-filter">
+                            <option value="">すべて</option>
+                            <option value="pending">保留中</option>
+                            <option value="confirmed">確認済み</option>
+                            <option value="completed">完了</option>
+                            <option value="cancelled">キャンセル</option>
+                        </select>
+                        <input type="date" id="reservation-date-filter">
+                    </div>
+                </div>
+                <div id="reservations-list" class="reservations-table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- 招待管理 -->
+            <div id="invitations-page" class="page">
+                <div class="page-header">
+                    <h1>招待管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="create-invitation-btn">新規招待作成</button>
+                    </div>
+                </div>
+                
+                <!-- 招待作成フォーム（モーダル） -->
+                <div id="invitation-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>新規招待作成</h2>
+                            <button class="modal-close" onclick="closeInvitationModal()">&times;</button>
+                        </div>
+                        <form id="invitation-form">
+                            <div class="form-group">
+                                <label for="invitation-email">招待メールアドレス *</label>
+                                <input type="email" id="invitation-email" required placeholder="example@example.com">
+                                <small>招待URLを送信するメールアドレス</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="invitation-shop-name">店舗名（オプション）</label>
+                                <input type="text" id="invitation-shop-name" placeholder="例: サロンABC">
+                            </div>
+                            <div class="form-group">
+                                <label for="invitation-expires-days">有効期限（日数）</label>
+                                <input type="number" id="invitation-expires-days" value="7" min="1" max="30">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeInvitationModal()">キャンセル</button>
+                                <button type="submit" class="btn btn-primary">招待を作成</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- フィルター -->
+                <div class="filter-bar">
+                    <select id="invitation-status-filter">
+                        <option value="">すべて</option>
+                        <option value="false">未使用</option>
+                        <option value="true">使用済み</option>
+                    </select>
+                </div>
+
+                <!-- 招待一覧 -->
+                <div id="invitations-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- 顧客管理 -->
+            <div id="customers-page" class="page">
+                <div class="page-header">
+                    <h1>顧客管理</h1>
+                    <div class="header-actions">
+                        <input type="text" id="customer-search" placeholder="名前・メールで検索">
+                        <button class="btn btn-primary" id="add-customer-btn">新規顧客追加</button>
+                    </div>
+                </div>
+                <div id="customers-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- スタイリスト管理 -->
+            <div id="stylists-page" class="page">
+                <div class="page-header">
+                    <h1>スタイリスト管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-stylist-btn">新規スタイリスト追加</button>
+                    </div>
+                </div>
+                <div id="stylists-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- サービス管理 -->
+            <div id="services-page" class="page">
+                <div class="page-header">
+                    <h1>サービス管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-service-btn">新規サービス追加</button>
+                    </div>
+                </div>
+                <div id="services-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- 商品管理 -->
+            <div id="products-page" class="page">
+                <div class="page-header">
+                    <h1>商品管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-product-btn">新規商品追加</button>
+                    </div>
+                </div>
+                <div id="products-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- 注文管理 -->
+            <div id="orders-page" class="page">
+                <div class="page-header">
+                    <h1>注文管理</h1>
+                    <div class="header-actions">
+                        <select id="order-status-filter">
+                            <option value="">すべて</option>
+                            <option value="pending">処理中</option>
+                            <option value="completed">完了</option>
+                            <option value="cancelled">キャンセル</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="orders-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- キャンペーン管理 -->
+            <div id="campaigns-page" class="page">
+                <div class="page-header">
+                    <h1>キャンペーン管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-campaign-btn">新規キャンペーン作成</button>
+                    </div>
+                </div>
+                <div id="campaigns-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- クーポン管理 -->
+            <div id="coupons-page" class="page">
+                <div class="page-header">
+                    <h1>クーポン管理</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="add-coupon-btn">新規クーポン作成</button>
+                    </div>
+                </div>
+                <div id="coupons-list" class="table-container">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </div>
+
+            <!-- 売上分析 -->
+            <div id="analytics-page" class="page">
+                <div class="page-header">
+                    <h1>売上分析</h1>
+                    <div class="header-actions">
+                        <select id="analytics-period">
+                            <option value="today">今日</option>
+                            <option value="week">今週</option>
+                            <option value="month" selected>今月</option>
+                            <option value="year">今年</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="analytics-content">
+                    <div class="analytics-card">
+                        <h3>売上推移</h3>
+                        <div id="revenue-chart" class="chart-placeholder">
+                            <p>売上データを読み込み中...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>人気サービス</h3>
+                            <div id="popular-services" class="list-placeholder">読み込み中...</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>人気商品</h3>
+                            <div id="popular-products" class="list-placeholder">読み込み中...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/admin.js?v=1.0"></script>
+</body>
+</html>
+

@@ -1,0 +1,101 @@
+{
+  "timestamp": "2025-12-28T11:58:09.986656",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "results": [
+    {
+      "name": "ルートエンドポイント",
+      "status": "PASS",
+      "details": "Version: 1.0.0",
+      "timestamp": "2025-12-28T11:57:32.597621"
+    },
+    {
+      "name": "ヘルスチェック",
+      "status": "PASS",
+      "details": "",
+      "timestamp": "2025-12-28T11:57:34.911989"
+    },
+    {
+      "name": "サービス一覧取得",
+      "status": "PASS",
+      "details": "4件のサービスを取得",
+      "timestamp": "2025-12-28T11:57:37.585553"
+    },
+    {
+      "name": "スタイリスト一覧取得",
+      "status": "PASS",
+      "details": "3件のスタイリストを取得",
+      "timestamp": "2025-12-28T11:57:39.984364"
+    },
+    {
+      "name": "スタイリスト詳細取得",
+      "status": "PASS",
+      "details": "",
+      "timestamp": "2025-12-28T11:57:42.635317"
+    },
+    {
+      "name": "顧客一覧取得",
+      "status": "PASS",
+      "details": "3件の顧客を取得",
+      "timestamp": "2025-12-28T11:57:44.934230"
+    },
+    {
+      "name": "顧客詳細取得",
+      "status": "PASS",
+      "details": "",
+      "timestamp": "2025-12-28T11:57:47.904091"
+    },
+    {
+      "name": "商品一覧取得",
+      "status": "PASS",
+      "details": "3件の商品を取得",
+      "timestamp": "2025-12-28T11:57:50.061426"
+    },
+    {
+      "name": "予約一覧取得",
+      "status": "PASS",
+      "details": "2件の予約を取得",
+      "timestamp": "2025-12-28T11:57:52.386359"
+    },
+    {
+      "name": "利用可能時間枠取得",
+      "status": "PASS",
+      "details": "22/22の時間枠が利用可能",
+      "timestamp": "2025-12-28T11:57:57.288047"
+    },
+    {
+      "name": "注文一覧取得",
+      "status": "PASS",
+      "details": "0件の注文を取得",
+      "timestamp": "2025-12-28T11:57:59.754824"
+    },
+    {
+      "name": "クーポン一覧取得",
+      "status": "PASS",
+      "details": "0件のクーポンを取得",
+      "timestamp": "2025-12-28T11:58:02.105076"
+    },
+    {
+      "name": "キャンペーン一覧取得",
+      "status": "PASS",
+      "details": "0件のキャンペーンを取得",
+      "timestamp": "2025-12-28T11:58:04.422970"
+    },
+    {
+      "name": "アクティブキャンペーン取得",
+      "status": "PASS",
+      "details": "0件のアクティブキャンペーン",
+      "timestamp": "2025-12-28T11:58:06.948990"
+    },
+    {
+      "name": "ファイル一覧取得",
+      "status": "PASS",
+      "details": "0件のファイル",
+      "timestamp": "2025-12-28T11:58:09.981979"
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店舗アカウント設定 - Yoyaku</title>
+    <link rel="stylesheet" href="/static/style.css?v=2.1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        .invite-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .invite-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .invite-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .invite-form {
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .result-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-message.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        .result-message.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invite-container">
+        <div class="invite-header">
+            <h1>✨ 店舗アカウント設定</h1>
+            <p>予約システムをご利用いただくための設定を行います</p>
+        </div>
+
+        <div id="loading" class="loading">招待を確認中...</div>
+
+        <div id="invite-form-container" style="display: none;">
+            <div class="info-box">
+                <strong>招待メール:</strong> <span id="invite-email"></span><br>
+                <small style="color: #666;">※ このメールアドレスは招待通知用です。ログイン用メールアドレスは別途設定してください。</small>
+            </div>
+
+            <form id="invite-form" class="invite-form">
+                <div class="form-group">
+                    <label for="shop-name">店舗名 *</label>
+                    <input type="text" id="shop-name" name="shop_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-email">ログイン用メールアドレス *</label>
+                    <input type="email" id="login-email" name="login_email" required>
+                    <small style="color: #666; font-size: 0.9em;">ログイン時に使用するメールアドレス（他の店舗と重複しても問題ありません）</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-name">管理者名（店舗オーナー名） *</label>
+                    <input type="text" id="admin-name" name="admin_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-email">管理者メールアドレス（連絡先） *</label>
+                    <input type="email" id="admin-email" name="admin_email" required>
+                    <small style="color: #666; font-size: 0.9em;">連絡先として使用するメールアドレス</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="shop-password">パスワード *</label>
+                    <input type="password" id="shop-password" name="shop_password" required minlength="8">
+                    <small style="color: #666; font-size: 0.9em;">8文字以上</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="shop-password-confirm">パスワード（確認） *</label>
+                    <input type="password" id="shop-password-confirm" name="shop_password_confirm" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                    アカウントを作成
+                </button>
+            </form>
+
+            <div id="invite-result" class="result-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // APIベースURLを動的に取得
+        const API_BASE = `${window.location.protocol}//${window.location.host}/api/v1`;
+        
+        // URLからトークンを取得
+        const token = window.location.pathname.split('/invite/')[1];
+        
+        if (!token) {
+            document.getElementById('loading').innerHTML = '<div class="result-message error">無効な招待リンクです</div>';
+        } else {
+            // 招待を検証
+            verifyInvitation(token);
+        }
+
+        async function verifyInvitation(token) {
+            try {
+                const response = await fetch(`${API_BASE}/invitations/verify/${token}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.valid) {
+                        // フォームを表示
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('invite-form-container').style.display = 'block';
+                        document.getElementById('invite-email').textContent = data.email;
+                        // shop_nameが存在し、文字化けしていない場合のみ設定
+                        // 文字化けチェック: 日本語以外の文字が多く含まれている場合は無視
+                        if (data.shop_name && data.shop_name.trim()) {
+                            const shopName = data.shop_name.trim();
+                            // 文字化けの可能性がある文字列（繝、亥、苓など）が含まれていないかチェック
+                            const garbledPattern = /[繝亥苓]/;
+                            if (!garbledPattern.test(shopName)) {
+                                document.getElementById('shop-name').value = shopName;
+                            }
+                        }
+                    } else {
+                        document.getElementById('loading').innerHTML = '<div class="result-message error">無効な招待です</div>';
+                    }
+                } else {
+                    const error = await response.json();
+                    document.getElementById('loading').innerHTML = `<div class="result-message error">${error.detail || '招待の確認に失敗しました'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `<div class="result-message error">エラー: ${error.message}</div>`;
+            }
+        }
+
+        document.getElementById('invite-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('invite-result');
+            resultDiv.className = 'result-message';
+            resultDiv.textContent = 'アカウント作成中...';
+            resultDiv.style.display = 'block';
+            
+            const password = document.getElementById('shop-password').value;
+            const passwordConfirm = document.getElementById('shop-password-confirm').value;
+            
+            if (password !== passwordConfirm) {
+                resultDiv.className = 'result-message error';
+                resultDiv.textContent = 'パスワードが一致しません';
+                return;
+            }
+            
+            // ログイン用メールアドレスの存在確認
+            const loginEmailElement = document.getElementById('login-email');
+            if (!loginEmailElement) {
+                resultDiv.className = 'result-message error';
+                resultDiv.textContent = 'エラー: ログイン用メールアドレスフィールドが見つかりません。ページを再読み込みしてください（Ctrl+F5）。';
+                return;
+            }
+            
+            const loginEmail = loginEmailElement.value;
+            if (!loginEmail || loginEmail.trim() === '') {
+                resultDiv.className = 'result-message error';
+                resultDiv.textContent = 'ログイン用メールアドレスを入力してください';
+                return;
+            }
+            
+            try {
+                const requestBody = {
+                    token: token,
+                    shop_name: document.getElementById('shop-name').value,
+                    login_email: loginEmail,
+                    shop_password: password,
+                    admin_name: document.getElementById('admin-name').value,
+                    admin_email: document.getElementById('admin-email').value
+                };
+                
+                console.log('送信データ:', requestBody);
+                
+                const response = await fetch(`${API_BASE}/invitations/accept`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result-message success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ アカウントが作成されました！</strong><br>
+                        <p style="margin-top: 10px;">管理画面にログインして、予約システムをご利用ください。</p>
+                        <a href="/static/admin.html" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">管理画面へ</a>
+                    `;
+                    document.getElementById('invite-form').style.display = 'none';
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.className = 'result-message error';
+                    // エラーメッセージを詳細に表示
+                    let errorMessage = 'アカウントの作成に失敗しました';
+                    if (errorData.detail) {
+                        if (Array.isArray(errorData.detail)) {
+                            // バリデーションエラーの場合
+                            errorMessage = errorData.detail.map(e => `${e.loc.join('.')}: ${e.msg}`).join('\n');
+                        } else {
+                            errorMessage = errorData.detail;
+                        }
+                    }
+                    resultDiv.textContent = `エラー: ${errorMessage}`;
+                    console.error('API Error:', errorData);
+                }
+            } catch (error) {
+                resultDiv.className = 'result-message error';
+                resultDiv.textContent = `エラー: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約システム - Yoyaku</title>
+    <link rel="stylesheet" href="/static/style.css?v=2.0">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>✨ Yoyaku 予約システム</h1>
+            <p class="subtitle">簡単・スピーディーな予約管理</p>
+        </header>
+
+        <!-- ナビゲーション -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="services">サービス一覧</button>
+            <button class="tab-btn" data-tab="reservation">予約する</button>
+            <button class="tab-btn" data-tab="products">商品一覧</button>
+            <button class="tab-btn" data-tab="order">注文する</button>
+            <button class="tab-btn" data-tab="coupons">クーポン</button>
+            <button class="tab-btn" data-tab="campaigns">キャンペーン</button>
+            <button class="tab-btn" data-tab="history">予約履歴</button>
+            <button class="tab-btn" data-tab="stylists">スタイリスト</button>
+            <button class="tab-btn" data-tab="recommendations">おすすめ</button>
+        </nav>
+
+        <!-- サービス一覧タブ -->
+        <div id="services-tab" class="tab-content active">
+            <h2>サービス一覧</h2>
+            <div id="services-list" class="services-grid">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+
+        <!-- 予約タブ -->
+        <div id="reservation-tab" class="tab-content">
+            <h2>新規予約</h2>
+            <form id="reservation-form" class="reservation-form">
+                <div class="form-group">
+                    <label for="customer-email">メールアドレス *</label>
+                    <input type="email" id="customer-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customer-name">お名前</label>
+                    <input type="text" id="customer-name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="customer-phone">電話番号</label>
+                    <input type="tel" id="customer-phone">
+                </div>
+                
+                <div class="form-group">
+                    <label for="service-select">サービス *</label>
+                    <select id="service-select" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stylist-select">スタイリスト（オプション）</label>
+                    <select id="stylist-select">
+                        <option value="">指定なし</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reservation-date">希望日 *</label>
+                    <input type="date" id="reservation-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reservation-time">希望時間 *</label>
+                    <select id="reservation-time" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">備考</label>
+                    <textarea id="notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">予約を確定</button>
+            </form>
+            
+            <div id="reservation-result" class="result-message"></div>
+        </div>
+
+        <!-- 予約履歴タブ -->
+        <div id="history-tab" class="tab-content">
+            <h2>予約履歴</h2>
+            <div class="form-group">
+                <label for="history-email">メールアドレスで検索</label>
+                <div class="search-box">
+                    <input type="email" id="history-email" placeholder="メールアドレスを入力">
+                    <button type="button" id="search-history-btn" class="btn btn-secondary">検索</button>
+                </div>
+            </div>
+            <div id="history-list" class="history-list">
+                <p class="info-text">メールアドレスを入力して検索してください</p>
+            </div>
+        </div>
+
+        <!-- 商品一覧タブ -->
+        <div id="products-tab" class="tab-content">
+            <h2>商品一覧</h2>
+            <div class="filter-group">
+                <select id="product-category-filter">
+                    <option value="">すべてのカテゴリ</option>
+                </select>
+                <label>
+                    <input type="checkbox" id="in-stock-only"> 在庫ありのみ
+                </label>
+            </div>
+            <div id="products-list" class="products-grid">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+
+        <!-- 注文タブ -->
+        <div id="order-tab" class="tab-content">
+            <h2>商品・サービスを注文</h2>
+            <form id="order-form" class="reservation-form">
+                <div class="form-group">
+                    <label for="order-customer-email">メールアドレス *</label>
+                    <input type="email" id="order-customer-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>注文アイテム *</label>
+                    <div id="order-items">
+                        <div class="order-item-row">
+                            <select class="item-type-select">
+                                <option value="service">サービス</option>
+                                <option value="product">商品</option>
+                            </select>
+                            <select class="item-select" required>
+                                <option value="">選択してください</option>
+                            </select>
+                            <input type="number" class="item-quantity" value="1" min="1" required>
+                            <button type="button" class="btn-remove-item">削除</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-order-item" class="btn btn-secondary" style="margin-top: 10px;">アイテムを追加</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="coupon-code">クーポンコード（オプション）</label>
+                    <div class="search-box">
+                        <input type="text" id="coupon-code" placeholder="クーポンコードを入力">
+                        <button type="button" id="validate-coupon-btn" class="btn btn-secondary">適用</button>
+                    </div>
+                    <div id="coupon-result" class="result-message"></div>
+                </div>
+                
+                <div class="order-summary">
+                    <h3>注文合計</h3>
+                    <div class="summary-row">
+                        <span>小計:</span>
+                        <span id="subtotal">¥0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>割引:</span>
+                        <span id="discount">-¥0</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>合計:</span>
+                        <span id="total">¥0</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">注文を確定</button>
+            </form>
+            
+            <div id="order-result" class="result-message"></div>
+        </div>
+
+        <!-- クーポンタブ -->
+        <div id="coupons-tab" class="tab-content">
+            <h2>利用可能なクーポン</h2>
+            <div id="coupons-list" class="coupons-grid">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+
+        <!-- キャンペーンタブ -->
+        <div id="campaigns-tab" class="tab-content">
+            <h2>キャンペーン情報</h2>
+            <div id="campaigns-list" class="campaigns-list">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+
+        <!-- スタイリストタブ -->
+        <div id="stylists-tab" class="tab-content">
+            <h2>スタイリスト一覧</h2>
+            <div id="stylists-list" class="stylists-grid">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+
+        <!-- おすすめタブ -->
+        <div id="recommendations-tab" class="tab-content">
+            <h2>あなたへのおすすめ</h2>
+            <div class="form-group">
+                <label for="recommendation-email">メールアドレスを入力</label>
+                <div class="search-box">
+                    <input type="email" id="recommendation-email" placeholder="メールアドレスを入力">
+                    <button type="button" id="get-recommendations-btn" class="btn btn-primary">おすすめを表示</button>
+                </div>
+            </div>
+            
+            <div id="recommended-services" style="margin-top: 30px;">
+                <h3>おすすめサービス</h3>
+                <div id="recommended-services-list" class="services-grid"></div>
+            </div>
+            
+            <div id="recommended-products" style="margin-top: 30px;">
+                <h3>おすすめ商品</h3>
+                <div id="recommended-products-list" class="products-grid"></div>
+            </div>
+            
+            <div id="recommended-times" style="margin-top: 30px;">
+                <h3>おすすめ予約時間</h3>
+                <div id="recommended-times-list" class="times-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=2.0"></script>
+</body>
+</html>
+
