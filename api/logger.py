@@ -8,24 +8,32 @@ from datetime import datetime
 from pathlib import Path
 import os
 
-# Vercel環境かどうかをチェック
-IS_VERCEL = os.getenv("VERCEL") == "1" or os.getenv("VERCEL_ENV") is not None
+# Vercel環境かどうかをチェック（複数の方法で確認）
+IS_VERCEL = (
+    os.getenv("VERCEL") == "1" or 
+    os.getenv("VERCEL_ENV") is not None or
+    os.getenv("VERCEL_ENV") == "production" or
+    os.getenv("VERCEL_ENV") == "preview" or
+    "/var/task" in str(Path(__file__).absolute())  # Vercelの実行パスをチェック
+)
 
-# ログディレクトリの作成（Vercel環境ではスキップ）
+# ログディレクトリの作成（常にtry-exceptで囲んで安全に）
 log_dir = None
 log_file = None
 
-if not IS_VERCEL:
-    # ローカル環境のみログディレクトリを作成
-    try:
+# ディレクトリ作成を試みる（失敗してもエラーにしない）
+try:
+    if not IS_VERCEL:
+        # ローカル環境のみログディレクトリを作成
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
         # ログファイル名（日付付き）
         log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-    except (OSError, PermissionError):
-        # ディレクトリ作成に失敗した場合はファイルログを無効化
-        log_dir = None
-        log_file = None
+except (OSError, PermissionError, Exception):
+    # ディレクトリ作成に失敗した場合はファイルログを無効化
+    # Vercel環境やその他の理由で失敗してもエラーにしない
+    log_dir = None
+    log_file = None
 
 
 def setup_logger(name: str = "yoyaku", level: int = logging.INFO) -> logging.Logger:
