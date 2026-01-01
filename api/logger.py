@@ -22,18 +22,20 @@ log_dir = None
 log_file = None
 
 # ディレクトリ作成を試みる（失敗してもエラーにしない）
-try:
-    if not IS_VERCEL:
-        # ローカル環境のみログディレクトリを作成
+# Vercel環境では常にスキップ、ローカル環境でも失敗した場合はスキップ
+if not IS_VERCEL:
+    try:
+        # ローカル環境のみログディレクトリを作成を試みる
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
         # ログファイル名（日付付き）
         log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-except (OSError, PermissionError, Exception):
-    # ディレクトリ作成に失敗した場合はファイルログを無効化
-    # Vercel環境やその他の理由で失敗してもエラーにしない
-    log_dir = None
-    log_file = None
+    except (OSError, PermissionError, Exception):
+        # ディレクトリ作成に失敗した場合はファイルログを無効化
+        # 読み取り専用ファイルシステムなどの理由で失敗してもエラーにしない
+        log_dir = None
+        log_file = None
+# Vercel環境では何もしない（log_dirとlog_fileはNoneのまま）
 
 
 def setup_logger(name: str = "yoyaku", level: int = logging.INFO) -> logging.Logger:
