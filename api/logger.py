@@ -23,18 +23,21 @@ log_file = None
 
 # ディレクトリ作成を試みる（失敗してもエラーにしない）
 # Vercel環境では常にスキップ、ローカル環境でも失敗した場合はスキップ
-if not IS_VERCEL:
-    try:
+# 注意: Vercel環境では読み取り専用ファイルシステムのため、ディレクトリ作成は常に失敗します
+try:
+    if not IS_VERCEL:
         # ローカル環境のみログディレクトリを作成を試みる
         log_dir = Path("logs")
-        log_dir.mkdir(exist_ok=True)
+        # ディレクトリが存在しない場合のみ作成を試みる
+        if not log_dir.exists():
+            log_dir.mkdir(exist_ok=True)
         # ログファイル名（日付付き）
         log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-    except (OSError, PermissionError, Exception):
-        # ディレクトリ作成に失敗した場合はファイルログを無効化
-        # 読み取り専用ファイルシステムなどの理由で失敗してもエラーにしない
-        log_dir = None
-        log_file = None
+except (OSError, PermissionError, Exception) as e:
+    # ディレクトリ作成に失敗した場合はファイルログを無効化
+    # 読み取り専用ファイルシステムなどの理由で失敗してもエラーにしない
+    log_dir = None
+    log_file = None
 # Vercel環境では何もしない（log_dirとlog_fileはNoneのまま）
 
 
