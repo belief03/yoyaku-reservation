@@ -24,41 +24,37 @@ except Exception:
     # パスの取得に失敗した場合は、安全のためVercel環境とみなす
     IS_VERCEL = True
 
-# ログディレクトリの作成（常にtry-exceptで囲んで安全に）
+# ログディレクトリの作成（Vercel環境では完全にスキップ）
+# 根本的な解決策: Vercel環境ではログファイルを作成しない
+# ローカル環境でも失敗した場合はスキップ
 log_dir = None
 log_file = None
 
-# ディレクトリ作成を試みる（失敗してもエラーにしない）
-# Vercel環境では常にスキップ、ローカル環境でも失敗した場合はスキップ
-# 注意: Vercel環境では読み取り専用ファイルシステムのため、ディレクトリ作成は常に失敗します
-# 根本的な解決策: 常にtry-exceptで囲み、Vercel環境の検出が失敗してもエラーにならないようにする
-# さらに、Path("logs")の作成もtry-exceptで囲む
-try:
-    if not IS_VERCEL:
-        # ローカル環境のみログディレクトリを作成を試みる
+# Vercel環境ではログファイルを作成しない（読み取り専用ファイルシステムのため）
+# ローカル環境でのみログディレクトリの作成を試みる
+# 注意: すべての操作をtry-exceptで囲み、失敗してもエラーにしない
+if not IS_VERCEL:
+    try:
+        # Path("logs")の作成を試みる
+        log_dir = Path("logs")
+        # ディレクトリが存在しない場合のみ作成を試みる
+        # exists()チェックも失敗する可能性があるため、try-exceptで囲む
         try:
-            log_dir = Path("logs")
-            # ディレクトリが存在しない場合のみ作成を試みる
-            # 注意: exists()チェックも読み取り専用ファイルシステムでは失敗する可能性があるため、
-            # mkdir()を直接呼び出して、エラーをキャッチする
-            try:
+            if not log_dir.exists():
                 log_dir.mkdir(exist_ok=True)
-            except (OSError, PermissionError):
-                # ディレクトリ作成に失敗した場合はファイルログを無効化
-                log_dir = None
-                log_file = None
-            else:
-                # ログファイル名（日付付き）
-                log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-        except (OSError, PermissionError, Exception):
-            # Path("logs")の作成に失敗した場合もファイルログを無効化
+        except (OSError, PermissionError):
+            # exists()チェックやディレクトリ作成に失敗した場合はファイルログを無効化
             log_dir = None
             log_file = None
-except (OSError, PermissionError, Exception) as e:
-    # ディレクトリ作成に失敗した場合はファイルログを無効化
-    # 読み取り専用ファイルシステムなどの理由で失敗してもエラーにしない
-    log_dir = None
-    log_file = None
+        else:
+            # ログファイル名（日付付き）
+            if log_dir is not None:
+                log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
+    except (OSError, PermissionError, Exception):
+        # Path("logs")の作成に失敗した場合もファイルログを無効化
+        # 読み取り専用ファイルシステムなどの理由で失敗してもエラーにしない
+        log_dir = None
+        log_file = None
 # Vercel環境では何もしない（log_dirとlog_fileはNoneのまま）
 
 
